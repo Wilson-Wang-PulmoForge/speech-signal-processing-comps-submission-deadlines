@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICASSP, EUSIPCO &amp; Interspeech deadline countdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #f7f4ee;
+    --ink-soft: rgba(247, 244, 238, 0.78);
+    --tokyo-tint: 8, 38, 58;      /* deep glass blue */
+    --sp-tint: 58, 24, 8;         /* sandstone shadow */
+    --note-bg: #14110f;
+    --note-ink: #f2ebe0;
+    --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --note-h: 3.4rem;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--body);
+    color: var(--ink);
+    background: var(--note-bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .split {
+    display: flex;
+    height: calc(100% - var(--note-h));
+    min-height: 34rem;
+  }
+
+  .panel {
+    position: relative;
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(1.5rem, 4vw, 3.5rem);
+    background-size: cover;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    transition: flex-grow 0.5s ease;
+  }
+  .panel:hover { flex-grow: 1.18; }
+
+  .panel::before {            /* tinted scrim so text stays readable */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .panel > * { position: relative; z-index: 1; }
+
+  .tokyo {
+    background-image: url("img/tokyo.jpg");
+    background-position: 55% 50%;
+  }
+  .tokyo::before {
+    background: linear-gradient(180deg,
+      rgba(var(--tokyo-tint), 0.55) 0%,
+      rgba(var(--tokyo-tint), 0.35) 40%,
+      rgba(var(--tokyo-tint), 0.82) 100%);
+  }
+
+  .saopaulo {
+    background-image: url("img/saopaulo.jpg");
+    background-position: 46% 50%;
+  }
+  .saopaulo::before {
+    background: linear-gradient(180deg,
+      rgba(var(--sp-tint), 0.50) 0%,
+      rgba(var(--sp-tint), 0.30) 40%,
+      rgba(var(--sp-tint), 0.82) 100%);
+  }
+
+  .eusipco {
+    background-image: url("img/eusipco.jpg");
+    background-position: 50% 50%;
+  }
+  .eusipco::before {
+    background: linear-gradient(180deg,
+      rgba(10, 34, 40, 0.58) 0%,
+      rgba(10, 34, 40, 0.38) 40%,
+      rgba(10, 34, 40, 0.84) 100%);
+  }
+
+  .divider {
+    width: 2px;
+    background: var(--ink);
+    opacity: 0.85;
+    flex: 0 0 2px;
+  }
+
+  .venue h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+  .venue p {
+    margin-top: 0.6rem;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    color: var(--ink-soft);
+  }
+
+  .count .days {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(5rem, 12vw, 10rem);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+  .count .unit {
+    margin-top: 0.6rem;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: 500;
+  }
+  .count .clock {
+    margin-top: 1.2rem;
+    font-size: clamp(1rem, 1.6vw, 1.25rem);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
+  }
+  .count .deadline {
+    margin-top: 0.35rem;
+    font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+    color: var(--ink-soft);
+  }
+
+  .note {
+    height: var(--note-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.25rem;
+    text-align: center;
+    background: var(--note-bg);
+    color: var(--note-ink);
+    font-size: clamp(0.85rem, 1.3vw, 1rem);
+    line-height: 1.35;
+  }
+  .note strong { font-weight: 600; }
+
+  .credit {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.5rem;
+    z-index: 1;
+    font-size: 0.7rem;
+    color: rgba(247, 244, 238, 0.55);
+  }
+
+  /* phones & narrow windows: stack the two sides */
+  @media (max-width: 760px) {
+    :root { --note-h: 4.6rem; }
+    .split { flex-direction: column; height: auto; min-height: 0; }
+    .panel { min-height: 26rem; }
+    .panel:hover { flex-grow: 1; }
+    .divider { width: auto; height: 2px; flex: 0 0 2px; }
+    .note { position: sticky; bottom: 0; }
+    body { height: auto; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<main class="split">
+
+  <!-- LEFT: ICASSP 2028, Tokyo -->
+  <section class="panel tokyo" aria-labelledby="icassp-title">
+    <div class="venue">
+      <h2 id="icassp-title">ICASSP 2028: Tokyo</h2>
+      <p>Submission deadline</p>
+    </div>
+    <div class="count" data-deadline="2027-09-23">
+      <div class="days" aria-live="off">--</div>
+      <div class="unit">days left</div>
+      <div class="clock">-- h -- m -- s</div>
+      <div class="deadline">Deadline: September 23, 2027</div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"></div>
+
+  <!-- MIDDLE: EUSIPCO 2027 -->
+  <section class="panel eusipco" aria-labelledby="eusipco-title">
+    <div class="venue">
+      <h2 id="eusipco-title">EUSIPCO 2027</h2>
+      <p>European Signal Processing Conference<br>Submission deadline</p>
+    </div>
+    <div class="count" data-deadline="2027-02-06">
+      <div class="days" aria-live="off">--</div>
+      <div class="unit">days left</div>
+      <div class="clock">-- h -- m -- s</div>
+      <div class="deadline">Deadline: February 6, 2027</div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"></div>
+
+  <!-- RIGHT: Interspeech 2027, São Paulo -->
+  <section class="panel saopaulo" aria-labelledby="interspeech-title">
+    <div class="venue">
+      <h2 id="interspeech-title">Interspeech 2027: São Paulo, Brazil</h2>
+      <p>Submission deadline</p>
+    </div>
+    <div class="count" data-deadline="2027-02-09">
+      <div class="days" aria-live="off">--</div>
+      <div class="unit">days left</div>
+      <div class="clock">-- h -- m -- s</div>
+      <div class="deadline">Deadline: February 9, 2027</div>
+    </div>
+    <span class="credit">Photo © Mavinho Acoroni</span>
+  </section>
+
+</main>
+
+<footer class="note">
+  <p><strong>If Interspeech doesn't work out,</strong> there are three months to revise and resubmit to ICASSP.</p>
+</footer>
+
+<script>
+  // Deadlines are treated as end of day Anywhere on Earth (UTC-12),
+  // i.e. 23:59:59 AoE on the given date.
+  function aoeEnd(dateStr) {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    return Date.UTC(y, m - 1, d, 23 + 12, 59, 59); // hours past 24 roll into the next UTC day
+  }
+
+  const counters = Array.from(document.querySelectorAll(".count")).map(el => ({
+    target: aoeEnd(el.dataset.deadline),
+    days: el.querySelector(".days"),
+    unit: el.querySelector(".unit"),
+    clock: el.querySelector(".clock")
+  }));
+
+  function pad(n) { return String(n).padStart(2, "0"); }
+
+  function tick() {
+    const now = Date.now();
+    for (const c of counters) {
+      let ms = c.target - now;
+      if (ms <= 0) {
+        c.days.textContent = "0";
+        c.unit.textContent = "deadline passed";
+        c.clock.textContent = "";
+        continue;
+      }
+      const s = Math.floor(ms / 1000);
+      const days = Math.floor(s / 86400);
+      const h = Math.floor((s % 86400) / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      c.days.textContent = days.toLocaleString("en-US");
+      c.unit.textContent = days === 1 ? "day left" : "days left";
+      c.clock.textContent = h + " h " + pad(m) + " m " + pad(sec) + " s";
+    }
+  }
+
+  tick();
+  setInterval(tick, 1000);
+</script>
+</body>
+</html>
